@@ -1,29 +1,30 @@
-# README for CDP Project
+# README
 
 ## Table of Contents
-1. [Introduction](#introduction)
-2. [Prerequisites](#prerequisites)
-3. [Unomi and Elasticsearch Setup](#unomi-and-elasticsearch-setup)
-4. [Running the Project](#running-the-project)
-5. [Environment Variables](#environment-variables)
-6. [Additional Information](#additional-information)
+
+1. [Unomi Setup](#unomi-setup)
+   - [Prerequisites](#prerequisites)
+   - [Project Setup](#project-setup)
+2. [Running the Application](#running-the-application)
+3. [Flow of Route](#flow-of-policy-count-route)
+4. Postman Collection link
+5. [Karaf Logs](#karaf-logs)
+6. [Updates](#updates)
 
 ---
 
-## Introduction
-This project involves setting up Apache Unomi as a Customer Data Platform (CDP) with Elasticsearch for data storage. Follow this guide to configure and run the services using Docker.
+## Unomi Setup
 
----
+### Prerequisites
 
-## Prerequisites
-Ensure the following tools are installed on your system:
-- [Docker](https://docs.docker.com/get-docker/)
-- [Git](https://git-scm.com/downloads)
+Ensure you have the following installed:
 
----
+- Docker
+- Git
 
-## Unomi and Elasticsearch Setup
-Create a `docker-compose.yml` file with the following content:
+### Setting Up Unomi and Elasticsearch on Docker
+
+Save the following as `docker-compose.yml`:
 
 ```yaml
 version: '3.8'
@@ -51,35 +52,76 @@ services:
       - elasticsearch
 ```
 
----
-
-## Running the Project
-1. Save the content above as `docker-compose.yml`.
-2. Open a terminal in the directory where the file is located.
-3. Run the following command to start the services:
-    ```bash
-    docker-compose up -d
-    ```
-
----
-
-## Environment Variables
-Ensure the following environment variables are set in your `.env` file for both the backend and frontend:
+Run the following command to start the services:
 
 ```bash
-UNOMI_API_URL=http://localhost:8181
-UNOMI_AUTH=a2FyYWY6a2FyYWY=
+docker-compose up -d
 ```
 
 ---
 
-## Additional Information
-- For more details, visit the [Apache Unomi Documentation](https://unomi.apache.org/)
-- In case of issues, check the logs using:
-  ```bash
-  docker-compose logs -f
-  ```
+## Project Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ayush22667/cdp
+   ```
+2. Configure Environment Variables in the `.env` file for both backend and frontend:
+   ```env
+   UNOMI_API_URL=http://localhost:8181
+   UNOMI_AUTH=a2FyYWY6a2FyYWY=
+   ```
+
 ---
 
-**Powered by Lumiq & Crisp Analytics**
+## Running the Application
+
+Ensure Docker containers are running using:
+
+```bash
+docker-compose ps
+```
+
+Then start your application as needed.
+
+---
+
+## Flow of Policy Count Route
+
+Here is an example of how the policy count route is called:
+
+```http
+GET http://localhost:3000/policy-count
+```
+
+1. **Client Request:** The GET request is sent to the `/policy-count` endpoint.
+2. **Router Level:** The request is routed through `unomiRoute.js`.
+3. **Controller Level:** The `getPolicyCountHandler` function handles the logic to process the request.
+4. **Service Level:** The `policyService.js` sends a POST request to Unomi’s API using `/cxs/query/profile` to fetch policy count data.
+
+---
+
+## Postman Collection Link
+
+[https://cdp999-1033.postman.co/workspace/cdp-Workspace\~be04364a-6eb9-4665-8106-a573e2f865f7/collection/39326112-9cd8ad75-f393-49ad-8c69-d663152262b0?action=share&creator=39326112&active-environment=39326112-8527a435-b7db-4a5a-a2f3-2de088866937](https://cdp999-1033.postman.co/workspace/cdp-Workspace~be04364a-6eb9-4665-8106-a573e2f865f7/collection/39326112-9cd8ad75-f393-49ad-8c69-d663152262b0?action=share\&creator=39326112\&active-environment=39326112-8527a435-b7db-4a5a-a2f3-2de088866937)
+
+## Karaf Logs
+
+Check Karaf logs using the following command:
+
+```bash
+docker exec -it <docker-container-id> /bin/bash
+cd /data
+cd /log
+tail -f karaf.log
+```
+
+---
+
+## Updates
+
+- Created segments to segregate users, policies, and claims.
+- Added rules such as `copyEventsToProfile`, `mergeProfilesOnRegisterByPhone`, and `engagementScoringRule` for various event actions.
+
+For further details, visit [Lumiq.ai](https://www.lumiq.ai).
 
