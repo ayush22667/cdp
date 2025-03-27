@@ -171,6 +171,7 @@ exports.updateClaimStatus = async (claimId, status) => {
       itemId: `claim${claimId}`,
       properties: {
         userInfo: claim.userId.toString(),
+        userId: claim.userId._id,
         policyId : claim.policyId,
         amount : claim.amount,
         dateFiled: claim.dateFiled,
@@ -183,9 +184,7 @@ exports.updateClaimStatus = async (claimId, status) => {
         'Content-Type': 'application/json'
       }
     });
-    console.log("hello mike")
     console.log("Data sent to Apache Unomi:", response.data);
-    console.log("hello mike testing")
   } catch (error) {
     console.error("Error sending data to Apache Unomi:", error?.response?.data || error.message);
   }
@@ -260,9 +259,12 @@ exports.approvePolicyPurchase = async (requestId, action) => {
           _id: policy._id,
           policyNumber: policy.policyNumber,
           type: policy.type,
+          coverageAmount: policy.coverageAmount,
+          cost: policy.cost,
           startDate: policy.startDate,
           endDate: policy.endDate,
-          coverageAmount: policy.coverageAmount,
+          itemType : "Purchased Policy",
+          userId: user._id,
         }
       }, {
         headers: {
@@ -329,4 +331,81 @@ exports.approvePolicyPurchase = async (requestId, action) => {
 //Get All Pending Policy Requests
 exports.getPendingPolicyRequests = async () => {
   return await PolicyRequest.find({ status: "Pending" }).populate("userId policyId");
+};
+
+//Get Analytics Data for Admin Dashboard
+exports.getAdminAnalytics = async () => {
+  const Policy = require("../models/Policy");
+  const Claim = require("../models/Claim");
+  const baseURL = process.env.BACKEND_URL;
+
+  // 1. Policy click data
+  let policyClickData = {};
+  try {
+    const policyCountResponse = await axios.get(`${baseURL}/unomi/policy-count`, {
+      headers: { "Content-Type": "application/json" }
+    });
+
+    const rawData = policyCountResponse.data;
+    Object.keys(rawData).forEach((key) => {
+      const formattedKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+      policyClickData[formattedKey] = rawData[key];
+    });
+  } catch (err) {
+    console.error("Error fetching policy click data:", err.message);
+  }
+
+  const mostClickedPolicy = { name: "N/A", clicks: 0 };
+  for (const [name, clicks] of Object.entries(policyClickData)) {
+    if (clicks > mostClickedPolicy.clicks) {
+      mostClickedPolicy.name = name;
+      mostClickedPolicy.clicks = clicks;
+    }
+  }
+
+  const mostVisitedPolicyType = {
+    type: mostClickedPolicy.name,
+    visits: mostClickedPolicy.clicks
+  };
+
+  // 2. Active user sessions
+  let totalUserSessions = 0;
+  try {
+    const profilesResponse = await axios.get(`${baseURL}/unomi/active-profiles`, {
+      headers: { "Content-Type": "application/json" }
+    });
+    totalUserSessions = profilesResponse.data?.length || 0;
+  } catch (err) {
+    console.error("Error fetching user sessions:", err.message);
+  }
+
+  // 3. Claim status breakdown + approval rate
+  let claimApprovalRate = 0;
+  let claimStatusData = { Pending: 0, Approved: 0, Rejected: 0 };
+
+  try {
+    const totalClaims = await Claim.countDocuments();
+    const approved = await Claim.countDocuments({ status: "Approved" });
+    const rejected = await Claim.countDocuments({ status: "Rejected" });
+    const pending = await Claim.countDocuments({ status: "Pending" });
+
+    claimApprovalRate = totalClaims > 0 ? Math.round((approved / totalClaims) * 100) : 0;
+    claimStatusData = { Pending: pending, Approved: approved, Rejected: rejected };
+  } catch (err) {
+    console.error("Error calculating claim data:", err.message);
+  }
+
+  // 4. Avg interaction time (placeholder)
+  const averageInteractionTime = "2 Minutes";
+
+  // Final combined analytics response
+  return {
+    mostClickedPolicy,
+    averageInteractionTime,
+    totalUserSessions,
+    mostVisitedPolicyType,
+    claimApprovalRate,
+    claimStatusData,
+    policyClickData
+  };
 };

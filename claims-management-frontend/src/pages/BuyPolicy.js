@@ -19,7 +19,7 @@ function BuyPolicy() {
         const response = await api.get("/policies");
         setPolicies(response.data);
       } catch (err) {
-        setError("❌ Failed to load policies. Please try again.");
+        setError("Failed to load policies. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -31,7 +31,7 @@ function BuyPolicy() {
         const response = await api.get(`/users/my-policies/${userId}`);
         setPurchasedPolicies(response.data.map((policy) => policy._id));
       } catch (err) {
-        console.error("⚠️ Error fetching user policies:", err.response?.data || err.message);
+        console.error(" Error fetching user policies:", err.response?.data || err.message);
       }
     };
 
@@ -63,10 +63,18 @@ function BuyPolicy() {
     };
 
     try {
-      await api.post("/unomi/track", eventPayload); // Using backend proxy route
-      console.log("✅ Unomi event sent");
+      // Send event to Unomi
+      await api.post("/unomi/track", eventPayload);
+      console.log("Unomi event sent");
+  
+      // Check click count and add to segment if count == 10
+      await api.post("/unomi/check-clicks", {
+        userId,
+        policyType: policy.type
+      });
+      
     } catch (error) {
-      console.error("Error sending Unomi event:", error);
+      console.error("Error in Unomi tracking or segment check:", error);
     }
   };
 
