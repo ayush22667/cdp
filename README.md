@@ -1,192 +1,202 @@
 # Claims Management System
 
-A comprehensive insurance policy and claims management application with separate user and admin interfaces. This system allows users to purchase policies, file claims, and track their status, while administrators can manage policies, process claims, and handle policy purchase requests.
+## Project Overview
+
+A comprehensive insurance policy and claims management application with separate user and admin interfaces. Users can purchase policies, file claims, and track their status, while administrators can manage policies, process claims, and handle policy requests.
 
 ## Project Structure
 
-The project consists of three main components:
-
-1. **Backend**: Node.js/Express API server with MongoDB database
-2. **Frontend**: React-based UI with Tailwind CSS styling
-3. **API Gateway**: Cloudflare-based API gateway 
+```
+cdp/
+├── Backend/                     # Node.js/Express backend
+├── claims-management-frontend/ # React frontend
+├── docker-compose.yml           # Multi-service setup
+├── run-with-env.sh              # One-command env setup script
+├── .env.backend                 # Auto-created by script
+├── .env.frontend                # Auto-created by script
+```
 
 ## Features
 
 ### User Features
-- User registration and authentication
+- Register, login, and manage profile
 - Browse and purchase insurance policies
 - File and track insurance claims
-- View policy details and status
-- Profile management
-- Password reset functionality
+- View policy and claim history
 
 ### Admin Features
-- Comprehensive dashboard with statistics
-- Policy creation and management
-- Claims processing (approve/reject)
-- Policy purchase request handling
-- User management
+- Dashboard with charts and statistics
+- Manage policies and users
+- Process claims (approve/reject)
+- Handle policy purchase requests
 
-## Technologies Used
+## Tech Stack
 
 ### Backend
-- Node.js and Express
-- MongoDB with Mongoose
-- JWT for authentication
-- Sendgrid and mautic for email notifications
-- Swagger for API documentation
-- Rate limiting for security
-- Google Generative AI integration for chatbot
-- Cron jobs for automated reminders
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT authentication
+- SendGrid + Mautic for emails
+- Swagger API docs
+- Google Gemini AI (chatbot)
+- Cron jobs, rate limiting
 
 ### Frontend
-- React 19
-- React Router for navigation
-- Axios for API requests
-- Tailwind CSS for styling
-- Chart.js for data visualization
-- React Hot Toast for notifications
-- React DnD for drag and drop functionality
+- React 19 + Tailwind CSS
+- React Router, Axios
+- Chart.js, React Hot Toast
+- React DnD for drag-and-drop
 
 ## Prerequisites
 
-Before running the application, make sure you have the following installed:
+Ensure you have:
 - Node.js (v16 or higher)
 - npm (v7 or higher)
-- MongoDB (local installation or MongoDB Atlas account)
-- Git
 - Docker
+- Git
 
-## Installation and Setup
+## Quick Start (Recommended with Docker)
 
-### Option 1: Running with Docker (Recommended)
+### Step 1: Clone the repository
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd task3
-   ```
+```bash
+git clone https://github.com/ayush22667/cdp.git
+cd cdp
+```
 
-2. Create a `.env` file in the Backend directory with the following variables:
-   ```
-   PORT=4000
-   MONGODB_URI=<your-mongodb-connection-string>
-   JWT_SECRET=<your-jwt-secret>
-   JWT_EXPIRY=7d
-   CORS_ORIGIN=http://localhost:3000
-   EMAIL_SERVICE=<your-email-service>
-   EMAIL_USER=<your-email>
-   EMAIL_PASS=<your-email-password>
-   FRONTEND_URL=http://localhost:3000
-   ```
+### Step 2: Create Setup Script
 
-3. Run the application using Docker Compose:
-   ```bash
-   docker-compose up
-   ```
+Create a script to generate environment files and start the application:
 
-4. Access the application:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:4000
-   - API Documentation: http://localhost:4000/api-docs
+```bash
+cat > run-with-env.sh <<'EOL'
+#!/bin/bash
+echo "Setting up environment variables..."
+# Backend .env
+cat > .env.backend <<EOF
+PORT=4000
+DATABASE_URL=mongodb+srv://ayushanandbtcs:OGUCgq79U9cdkqbp@claimmanagement.wavj4.mongodb.net/test?retryWrites=true&w=majority&appName=ClaimManagement
+JWT_SECRET=ayushanand
+ADMIN_SECRET_KEY=supersecureadminkey
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_SENDER=ayushanandbtcs@gmail.com
+FRONTEND_URL=https://claim-management-system-1-5pzo.onrender.com
+relic=your-new-relic-key
+LICENSE_KEY=feec9d620f9bd8297c22a278d9529851FFFFNRAL
+CORS_ORIGIN=https://claim-management-system-1-5pzo.onrender.com,http://localhost:3000,http://10.123.215.101:8181
+GEMINI_API_KEY=your-gemini-key
+MAUTIC_BASE_URL=http://localhost:8080
+MAUTIC_USER=admin
+MAUTIC_PASS=123@Ayush
+WIT_AI_SERVER_ACCESS_TOKEN=2JGN4WXFPWKIYVW6NEFF7JAS2MDYIC7Z
+UNOMI_API_URL=http://localhost:8181
+UNOMI_AUTH=a2FyYWY6a2FyYWY=
+BACKEND_URL=http://localhost:4000
+UNOMI_USER=karaf
+UNOMI_PASS=karaf
+EOF
+# Frontend .env
+cat > .env.frontend <<EOF
+REACT_APP_UNOMI_API_URL=http://localhost:8181
+EOF
+echo "Environment files created."
+echo "Starting containers with Docker Compose..."
+docker-compose up --build
+EOL
+# Make script executable
+chmod +x run-with-env.sh
+```
 
-### Option 2: Running Without Docker
+### Step 3: Run the Setup Script
 
-#### Backend Setup
+```bash
+./run-with-env.sh
+```
 
-1. Navigate to the Backend directory:
-   ```bash
-   cd task3/Backend
-   ```
+This script will:
+- Create `.env.backend` with all necessary backend environment variables
+- Create `.env.frontend` with frontend environment variables
+- Make the script executable
+- Start the Docker Compose setup
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## Access the Application
 
-3. Create a `.env` file with the necessary environment variables (see Docker section above)
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:4000
+- Mautic: http://localhost:8080
+- Mailhog: http://localhost:8025
+- Unomi: http://localhost:8181
+- Swagger Docs: http://localhost:4000/api-docs
 
-4. Start the backend server:
-   ```bash
-   npm run dev
-   ```
+## Manual Setup (Without Docker)
 
-5. The backend server will run on http://localhost:4000
+### Backend
 
-#### Frontend Setup
+```bash
+cd Backend
+npm install
+# Create .env manually or run setup script
+npm run dev
+```
 
-1. Navigate to the Frontend directory:
-   ```bash
-   cd task3/claims-management-frontend
-   ```
+### Frontend
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the frontend development server:
-   ```bash
-   npm start
-   ```
-
-4. The frontend application will run on http://localhost:3000
+```bash
+cd claims-management-frontend
+npm install
+npm start
+```
 
 ## API Documentation
 
-The backend API is documented using Swagger. Once the backend server is running, you can access the API documentation at:
+Once the backend is running, access API docs at:
 ```
 http://localhost:4000/api-docs
 ```
 
-## User Roles and Access
+## Database Collections
 
-### Regular User
-- Register and login
-- Browse available policies
-- Purchase policies
-- File claims for purchased policies
-- View claim status
-- Update profile information
+- Users
+- Policies
+- PurchasedPolicies
+- Claims
+- PolicyRequests
 
-### Admin User
-- Access admin dashboard
-- Create and manage insurance policies
-- Process claims (approve/reject)
-- Handle policy purchase requests
-- View statistics and reports
 
-## Database Schema
-
-The application uses MongoDB with the following main collections:
-- Users: Store user information and authentication details
-- Policies: Insurance policy templates available for purchase
-- PurchasedPolicies: Policies purchased by users
-- Claims: Claims filed by users against their purchased policies
-- PolicyRequests: Requests from users to purchase policies
-
-## Testing
-
-The frontend includes Cypress for end-to-end testing:
-
-```bash
-cd claims-management-frontend
-npm run test
-```
-
-## Deployment
-
-The application can be deployed to various cloud platforms:
-
-1. **Backend**: Deploy to services like Heroku, Render, or AWS
-2. **Frontend**: Deploy to services like Netlify, Vercel, or GitHub Pages
-3. **Database**: Use MongoDB Atlas for the database
-
-Remember to update the environment variables and API endpoints for production deployment.
+Update environment variables accordingly.
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create a new feature branch
+3. Commit your changes
+4. Submit a Pull Request
+
+## Environment Variables
+
+The script generates two key environment files:
+
+### Backend Environment Variables (.env.backend)
+- `PORT`: Application port
+- `DATABASE_URL`: MongoDB connection string
+- `JWT_SECRET`: Secret for JWT authentication
+- `ADMIN_SECRET_KEY`: Admin access key
+- `SENDGRID_API_KEY`: SendGrid email service key
+- `FRONTEND_URL`: Frontend application URL
+- `GEMINI_API_KEY`: Google Gemini API key
+- `MAUTIC_BASE_URL`: Mautic integration URL
+- `UNOMI_API_URL`: Apache Unomi API URL
+
+### Frontend Environment Variables (.env.frontend)
+- `REACT_APP_UNOMI_API_URL`: Unomi API URL for frontend
+
+## Security Notice
+
+- Never commit real API keys or secrets to the repository
+- Use environment variables and secret managers in production
+- Rotate secrets regularly
+- Limit access to environment files
+
+## Credits
+
+Created by Ayush Anand. Integrated with Mautic, Apache Unomi, and Google Gemini for personalized marketing and smart automation.
