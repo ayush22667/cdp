@@ -123,5 +123,4 @@ tail -f karaf.log
 - Created segments to segregate users, policies, and claims.
 - Added rules such as `copyEventsToProfile`, `mergeProfilesOnRegisterByPhone`, and `engagementScoringRule` for various event actions.
 
-For further details, visit [Lumiq.ai](https://www.lumiq.ai).
 
