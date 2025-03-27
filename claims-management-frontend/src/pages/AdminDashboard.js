@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import Chatbot from "../components/Chatbot"; // Import chatbot
+import Chatbot from "../components/Chatbot";
 import { Pie, Bar } from "react-chartjs-2";
 import { useNotification } from "../context/NotificationContext";
 import {

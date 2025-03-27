@@ -1,8 +1,15 @@
-const cron = require("node-cron");
-const sendPolicyReminders = require("./jobs/sendReminders");
+console.log("Cron jobs loaded");
 
-// Runs every day at 9:00 AM
+const cron = require("node-cron");
+const sendPolicyReminders = require("./sendReminders");
+const runUnomiToMauticSync = require("./unomiToMauticSync");
+
 cron.schedule("0 9 * * *", async () => {
-  console.log("⏰ Running daily policy reminder emails...");
+  console.log("Sending reminders...");
   await sendPolicyReminders();
+});
+
+cron.schedule("0 9 * * *", async () => {
+  console.log("Syncing Unomi users to Mautic...");
+  await runUnomiToMauticSync();
 });

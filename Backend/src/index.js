@@ -10,10 +10,9 @@ const unomiRoute = require('./routes/unomiRoutes');
 const unomiController = require('./controllers/unomiController'); 
 
 require("dotenv").config();
-require("./reminderCron");
-
-
 connectDB();
+require("./jobs/reminderCron");
+
 
 
 // const whitelist = process.env.CORS_ORIGIN
