@@ -1,1 +1,4 @@
 /cloudflare-api-gateway
+.env.backend
+.env.frontend
+*.log

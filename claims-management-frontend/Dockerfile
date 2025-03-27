@@ -1,27 +1,17 @@
-# Use the Node.js image as the base image
-FROM node:22.13.1
+FROM node:18-alpine
 
-# Working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json first to leverage Docker cache
-COPY package*.json ./
-
 # Install dependencies
-RUN npm ci --only=production
+COPY package*.json ./
+RUN npm install
 
-
-# Copy the rest of the application code
+# Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
-
-# Remove development dependencies
-RUN npm prune --production
-
-# Expose the application port
+# Expose the port React dev server runs on
 EXPOSE 3000
 
-# Start the application in production mode
-CMD ["npm", "run", "start:prod"]
+# Start the app
+CMD ["npm", "start"]

@@ -1,18 +1,41 @@
+version: '3.8'
+
 services:
   frontend:
-    build:
-      context: ./claims-management-frontend
-      dockerfile: ./Dockerfile
+    build: ./claims-management-frontend
     ports:
       - "3000:3000"
+    env_file:
+      - .env.frontend
     depends_on:
       - backend
-    command: ["npm", "start"]
 
   backend:
-    build:
-      context: ./Backend
-      dockerfile: ./Dockerfile
+    build: ./Backend
     ports:
       - "4000:4000"
-    command: ["npm", "run", "dev"]
+    env_file:
+      - .env.backend
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  mautic:
+    extends:
+      file: ./mautic/docker-compose.yaml
+      service: mautic
+
+  unomi:
+    extends:
+      file: ./unomi/docker-compose.yml
+      service: unomi
+
+volumes:
+  mongo-data:
