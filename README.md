@@ -75,20 +75,20 @@ echo "Setting up environment variables..."
 # Backend .env
 cat > .env.backend <<EOF
 PORT=4000
-DATABASE_URL=mongodb+srv://ayushanandbtcs:OGUCgq79U9cdkqbp@claimmanagement.wavj4.mongodb.net/test?retryWrites=true&w=majority&appName=ClaimManagement
-JWT_SECRET=ayushanand
-ADMIN_SECRET_KEY=supersecureadminkey
-SENDGRID_API_KEY=your-sendgrid-api-key
-SENDGRID_SENDER=ayushanandbtcs@gmail.com
-FRONTEND_URL=https://claim-management-system-1-5pzo.onrender.com
-relic=your-new-relic-key
-LICENSE_KEY=feec9d620f9bd8297c22a278d9529851FFFFNRAL
-CORS_ORIGIN=https://claim-management-system-1-5pzo.onrender.com,http://localhost:3000,http://10.123.215.101:8181
-GEMINI_API_KEY=your-gemini-key
+DATABASE_URL=mongodb://mongo:27017/claimmanagement
+JWT_SECRET=your_jwt_secret
+ADMIN_SECRET_KEY=your_admin_secret
+SENDGRID_API_KEY=your_sendgrid_api_key
+SENDGRID_SENDER=your_email@example.com
+FRONTEND_URL=http://localhost:3000
+relic=your_new_relic_key
+LICENSE_KEY=your_license_key
+CORS_ORIGIN=http://localhost:3000
+GEMINI_API_KEY=your_gemini_api_key
 MAUTIC_BASE_URL=http://localhost:8080
 MAUTIC_USER=admin
 MAUTIC_PASS=123@Ayush
-WIT_AI_SERVER_ACCESS_TOKEN=2JGN4WXFPWKIYVW6NEFF7JAS2MDYIC7Z
+WIT_AI_SERVER_ACCESS_TOKEN=your_wit_ai_token
 UNOMI_API_URL=http://localhost:8181
 UNOMI_AUTH=a2FyYWY6a2FyYWY=
 BACKEND_URL=http://localhost:4000
@@ -107,6 +107,27 @@ EOL
 chmod +x run-with-env.sh
 ```
 
+### Step 2B: Setup API Keys
+
+Before running the setup script, you'll need to obtain and configure the following API keys:
+
+1. **SendGrid API Key**
+   - Visit [SendGrid](https://sendgrid.com/) and create an account
+   - Go to Settings > API Keys
+   - Create a new API key with appropriate permissions
+   - Replace `your-sendgrid-api-key` in the script with your actual SendGrid API key
+
+2. **Google Gemini API Key**
+   - Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Create a new API key for the Gemini API
+   - Replace `your-gemini-key` in the script with your actual Gemini API key
+
+3. **New Relic License Key**
+   - Sign up at [New Relic](https://newrelic.com/)
+   - Navigate to Account Settings
+   - Find or generate your license key
+   - Replace `your-new-relic-key` in the script with your actual New Relic license key
+
 ### Step 3: Run the Setup Script
 
 ```bash
@@ -118,6 +139,8 @@ This script will:
 - Create `.env.frontend` with frontend environment variables
 - Make the script executable
 - Start the Docker Compose setup
+
+**Note:** Ensure you replace the placeholder keys with your actual API keys to enable full functionality of the application.
 
 ## Access the Application
 
@@ -162,6 +185,16 @@ http://localhost:4000/api-docs
 - Claims
 - PolicyRequests
 
+## Deployment
+
+### Backend
+- Render, Heroku, EC2
+
+### Frontend
+- Netlify, Vercel
+
+### Database
+- MongoDB Atlas
 
 Update environment variables accordingly.
 
@@ -200,3 +233,4 @@ The script generates two key environment files:
 ## Credits
 
 Created by Ayush Anand. Integrated with Mautic, Apache Unomi, and Google Gemini for personalized marketing and smart automation.
+
