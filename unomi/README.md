@@ -9,7 +9,8 @@
 3. [Flow of Route](#flow-of-policy-count-route)
 4. Postman Collection link
 5. [Karaf Logs](#karaf-logs)
-6. [Updates](#updates)
+6. [Rules](#rules)
+7. [Updates](#updates)
 
 ---
 
@@ -36,6 +37,8 @@ services:
       - discovery.type=single-node
     ports:
       - 9200:9200
+    volumes:
+      - ./elasticsearch-data:/usr/share/elasticsearch/data
 
   unomi:
     image: apache/unomi:1.5.7
@@ -50,6 +53,8 @@ services:
       - elasticsearch
     depends_on:
       - elasticsearch
+    volumes:
+      - ./unomi-data:/data
 ```
 
 Run the following command to start the services:
@@ -103,7 +108,7 @@ GET http://localhost:3000/policy-count
 
 ## Postman Collection Link
 
-[https://cdp999-1033.postman.co/workspace/cdp-Workspace\~be04364a-6eb9-4665-8106-a573e2f865f7/collection/39326112-9cd8ad75-f393-49ad-8c69-d663152262b0?action=share&creator=39326112&active-environment=39326112-8527a435-b7db-4a5a-a2f3-2de088866937](https://cdp999-1033.postman.co/workspace/cdp-Workspace~be04364a-6eb9-4665-8106-a573e2f865f7/collection/39326112-9cd8ad75-f393-49ad-8c69-d663152262b0?action=share\&creator=39326112\&active-environment=39326112-8527a435-b7db-4a5a-a2f3-2de088866937)
+[Postman Collection](https://cdp999-1033.postman.co/workspace/cdp-Workspace~be04364a-6eb9-4665-8106-a573e2f865f7/collection/39326112-9cd8ad75-f393-49ad-8c69-d663152262b0?action=share&creator=39326112&active-environment=39326112-8527a435-b7db-4a5a-a2f3-2de088866937)
 
 ## Karaf Logs
 
@@ -114,6 +119,112 @@ docker exec -it <docker-container-id> /bin/bash
 cd /data
 cd /log
 tail -f karaf.log
+```
+
+---
+
+## Rules
+
+Here are the rules applied in Unomi:
+
+### Copy Events to Profile
+```json
+{
+  "metadata": {
+    "id": "copyEventsToProfile",
+    "name": "Copy Events to Profile",
+    "description": "Automatically copies event properties to the corresponding profile."
+  },
+  "condition": {
+    "type": "eventTypeCondition",
+    "parameterValues": {
+      "eventTypeId": "viewPolicy"
+    }
+  },
+  "actions": [
+    {
+      "type": "allEventToProfilePropertiesAction",
+      "parameterValues": {}
+    }
+  ]
+}
+```
+
+### Merge Profiles on Register by Phone
+```json
+{
+  "metadata": {
+    "id": "mergeProfilesOnRegisterByPhone",
+    "name": "Merge Profiles on Phone Number upon Register",
+    "description": "Merges profiles that have the same phone number when a register event occurs."
+  },
+  "condition": {
+    "type": "booleanCondition",
+    "parameterValues": {
+      "operator": "and",
+      "subConditions": [
+        {
+          "type": "eventTypeCondition",
+          "parameterValues": {
+            "eventTypeId": "register"
+          }
+        },
+        {
+          "type": "profilePropertyCondition",
+          "parameterValues": {
+            "propertyName": "properties.phone",
+            "comparisonOperator": "equals",
+            "propertyValue": "eventProperty::properties.phone"
+          }
+        }
+      ]
+    }
+  },
+  "actions": [
+    {
+      "type": "mergeProfilesOnPropertyAction",
+      "parameterValues": {
+        "mergeProfilePropertyName": "phone",
+        "mergeProfilePropertyValue": "eventProperty::properties.phone"
+      }
+    }
+  ]
+}
+```
+
+### Engagement Scoring Rule
+```json
+{
+  "metadata": {
+    "id": "engagementScoringRule",
+    "name": "Engagement Scoring Rule",
+    "description": "Adjusts user engagement score based on premium content interaction."
+  },
+  "condition": {
+    "type": "eventTypeCondition",
+    "parameterValues": {
+      "eventTypeId": "premiumContentView"
+    }
+  },
+  "actions": [
+    {
+      "type": "incrementPropertyAction",
+      "parameterValues": {
+        "propertyName": "engagementScore",
+        "incrementValue": 10
+      }
+    },
+    {
+      "type": "setPropertyAction",
+      "parameterValues": {
+        "propertyName": "engagementScore",
+        "propertyValue": {
+          "expression": "profile.engagementScore + 10"
+        }
+      }
+    }
+  ]
+}
 ```
 
 ---
